@@ -31,13 +31,13 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ id: string, name: string, userId: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string }, { id: string, name: string, userId: string }>> = [
             {
-                old_val: {
-                    leftId: undefined
-                },
+                old_val: undefined,
                 new_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         id: "2",
                         name: "nr2",
@@ -46,7 +46,7 @@ describe("join listener", () => {
                 }
             }
         ]
-        let received: Array<DatabaseJoinChange<{ id: string, userId: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string }, { id: string, userId: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -77,14 +77,13 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ id: string, name: string, userId: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string }, { id: string, name: string, userId: string }>> = [
             {
-                old_val: {
-                    leftId: "6",
-                    right: undefined
-                },
+                old_val: undefined,
                 new_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         id: "2",
                         name: "nr2",
@@ -93,7 +92,7 @@ describe("join listener", () => {
                 }
             }
         ]
-        let received: Array<DatabaseJoinChange<{ id: string, userId: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string }, { id: string, userId: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -123,25 +122,27 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ id: string, name: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string, userId: string }, { id: string, name: string }>> = [
             {
                 old_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6",
+                        userId: "2"
+                    },
                     right: {
                         id: "2",
                         name: "nr2",
                     }
                 },
-                new_val: {
-                    leftId: "6"
-                }
+                new_val: undefined
             },
             {
-                old_val: {
-                    leftId: "6"
-                },
+                old_val: undefined,
                 new_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6",
+                        userId: "3"
+                    },
                     right: {
                         id: "3",
                         name: "nr3"
@@ -149,7 +150,7 @@ describe("join listener", () => {
                 }
             }
         ]
-        let received: Array<DatabaseJoinChange<{ id: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string, userId: string }, { id: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -180,17 +181,21 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ name: string, userId: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string }, { name: string, userId: string }>> = [
             {
                 old_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         name: "nr2",
                         userId: "6"
                     }
                 },
                 new_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         name: "nr3",
                         userId: "6"
@@ -198,7 +203,7 @@ describe("join listener", () => {
                 }
             }
         ]
-        let received: Array<DatabaseJoinChange<{ userId: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string }, { userId: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -227,22 +232,22 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ id: string, name: string, userId: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string }, { id: string, name: string, userId: string }>> = [
             {
                 old_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         id: "2",
                         name: "nr2",
                         userId: "6"
                     }
                 },
-                new_val: {
-                    leftId: undefined
-                }
+                new_val: undefined
             }
         ]
-        let received: Array<DatabaseJoinChange<{ id: string, userId: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string }, { id: string, userId: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -256,7 +261,7 @@ describe("join listener", () => {
 
     it("delete right", done => {
         let listenerClosedSink: Array<Promise<void>> = []
-        let joinListener = new JoinChangeListener<{ id: string },{ id: string, userId: string, name: string }>(
+        let joinListener = new JoinChangeListener<{ id: string }, { id: string, userId: string, name: string }>(
             asCursorData([{ id: "6" }], listenerClosedSink, "left table"),
             asCursorChange([], listenerClosedSink, "left table changes"),
             "id",
@@ -273,23 +278,22 @@ describe("join listener", () => {
         )
         joinListener.start()
         let generator = joinListener.createGenerator()
-        let shouldReceive: Array<DatabaseJoinChange<{ id: string, name: string, userId: string }>> = [
+        let shouldReceive: Array<DatabaseJoinChange<{ id: string }, { id: string, name: string, userId: string }>> = [
             {
                 old_val: {
-                    leftId: "6",
+                    left: {
+                        id: "6"
+                    },
                     right: {
                         id: "2",
                         name: "nr2",
                         userId: "6"
                     }
                 },
-                new_val: {
-                    leftId: "6",
-                    right: undefined
-                }
+                new_val: undefined
             }
         ]
-        let received: Array<DatabaseJoinChange<{ id: string, userId: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string }, { id: string, userId: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 received.push(change)
@@ -334,7 +338,7 @@ describe("join listener", () => {
             "userId"
         )
         firstJoin.start()
-        let cursor = firstJoin.createCursor(val => ({ old_val: val.old_val.right, new_val: val.new_val.right }))
+        let cursor = firstJoin.createCursor(val => ({ old_val: val.old_val?.right, new_val: val.new_val?.right }))
         let secondJoin = new JoinChangeListener<{ id: string, roleId: string, userId: string }, { id: string, name: string }>(
             asCursorData([
                 { id: "z", userId: "1", roleId: "2" },
@@ -360,7 +364,7 @@ describe("join listener", () => {
         )
         secondJoin.start()
         let generator = secondJoin.createGenerator()
-        let received: Array<DatabaseJoinChange<{ id: string, name: string }>> = []
+        let received: Array<DatabaseJoinChange<{ id: string, roleId: string, userId: string }, { id: string, name: string }>> = []
         const receive = async () => {
             for await (let change of generator) {
                 console.log(change)
